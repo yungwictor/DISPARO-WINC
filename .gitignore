@@ -1,0 +1,13 @@
+node_modules
+dist
+.env
+*.log
+backend/storage/*.sqlite
+backend/storage/*.sqlite-shm
+backend/storage/*.sqlite-wal
+backend/uploads/*
+!backend/uploads/.gitkeep
+!backend/storage/.gitkeep
+
+# Local Netlify folder
+.netlify

@@ -1,0 +1,7 @@
+node_modules
+npm-debug.log
+storage/*.sqlite
+storage/*.sqlite-shm
+storage/*.sqlite-wal
+uploads/*
+!uploads/.gitkeep

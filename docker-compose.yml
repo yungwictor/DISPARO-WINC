@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: disparo-winc-api
+    environment:
+      PORT: 3333
+      NODE_ENV: production
+      CORS_ORIGIN: http://localhost:5173
+      DATABASE_PATH: /app/storage/disparo-winc.sqlite
+      UPLOAD_DIR: /app/uploads
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET before running docker compose}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD before running docker compose}
+    ports:
+      - "3333:3333"
+    volumes:
+      - winc_sqlite:/app/storage
+      - winc_uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: disparo-winc-web
+    environment:
+      VITE_API_URL: http://localhost:3333/api
+      VITE_SOCKET_URL: http://localhost:3333
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  winc_sqlite:
+  winc_uploads:

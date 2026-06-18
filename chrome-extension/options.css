@@ -1,0 +1,119 @@
+:root {
+  color-scheme: dark;
+  --green: #00ff01;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(0, 255, 1, 0.14), transparent 28%),
+    radial-gradient(circle at 80% 0%, rgba(114, 29, 123, 0.42), transparent 28%),
+    linear-gradient(135deg, #120016, #270128);
+  color: #e8fff0;
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+.page {
+  width: min(680px, calc(100vw - 32px));
+}
+
+.card {
+  border: 1px solid rgba(0, 255, 138, 0.22);
+  border-radius: 14px;
+  padding: 28px;
+  background: rgba(39, 1, 40, 0.86);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.42), 0 0 34px rgba(0, 255, 138, 0.08);
+}
+
+p {
+  margin: 0;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+}
+
+h1 {
+  margin: 10px 0 24px;
+  font-size: 34px;
+}
+
+label {
+  display: block;
+  margin-top: 16px;
+  color: rgba(232, 255, 240, 0.66);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+input {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  border: 1px solid rgba(0, 255, 138, 0.18);
+  border-radius: 10px;
+  outline: none;
+  padding: 0 14px;
+  color: white;
+  background: rgba(0, 0, 0, 0.24);
+}
+
+input:focus {
+  border-color: rgba(0, 255, 138, 0.58);
+  box-shadow: 0 0 0 4px rgba(0, 255, 138, 0.08);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.toggle {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0 14px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.toggle input {
+  width: 22px;
+  min-height: 22px;
+  accent-color: var(--green);
+}
+
+button {
+  min-height: 46px;
+  margin-top: 22px;
+  border: 1px solid rgba(0, 255, 138, 0.58);
+  border-radius: 10px;
+  padding: 0 20px;
+  color: #03140a;
+  background: linear-gradient(135deg, #e7ffe8, var(--green));
+  font-weight: 950;
+}
+
+.hint {
+  margin-top: 16px;
+  color: rgba(232, 255, 240, 0.55);
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

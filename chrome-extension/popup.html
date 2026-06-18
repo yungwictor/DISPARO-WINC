@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Disparo Winc</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="provider-tabs">
+        <button class="tab active" data-provider="wpp">
+          <span>&#10022;</span>
+          WPP Connect
+        </button>
+        <button class="tab" data-provider="official">
+          <span>&#9679;</span>
+          API Oficial
+        </button>
+      </header>
+
+      <section class="brand-panel">
+        <div class="zdg-box">
+          <img src="assets/winc-logo.png" alt="Agência WINC" class="agency-logo" />
+        </div>
+        <button class="round" id="connectBtn" title="Conectar sessão">&#10227;</button>
+        <div class="quota">
+          <span>WPP: <b id="wppCount">410</b></span>
+          <span>&bull; Oficial: <b id="officialCount">410</b></span>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-title">
+          <span>| NÚMEROS</span>
+          <div class="mini-actions">
+            <button title="Importar contatos" id="quickContacts">&#9671;</button>
+            <button title="Limpar números" id="clearNumbers">&#8854;</button>
+          </div>
+        </div>
+        <textarea id="numbers" rows="6" spellcheck="false"></textarea>
+        <div class="row wrap">
+          <button class="outline blue" id="validateBtn">Validar</button>
+          <button class="outline green" id="contactsBtn">Contatos</button>
+          <button class="outline yellow" id="groupsBtn">Grupos</button>
+          <label class="soft-file">
+            Upload csv
+            <input type="file" id="csvInput" accept=".csv,text/csv" />
+          </label>
+          <button class="soft" id="modelBtn">Modelo</button>
+        </div>
+        <div class="validation" id="validationBox">
+          <span>Válidos: <b id="validCount">0</b></span>
+          <span>Inválidos: <b id="invalidCount">0</b></span>
+          <span>Duplicados: <b id="duplicateCount">0</b></span>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-title"><span>| MENSAGEM</span></div>
+        <textarea id="message" rows="5" spellcheck="true"></textarea>
+        <div class="row wrap vars">
+          <button data-var="[name{field1}]">Nome</button>
+          <button data-var="[field2]">Campo2</button>
+          <button data-var="[field3]">Field3</button>
+          <button data-var="[field4]">Field4</button>
+          <button id="emojiBtn">Emoji</button>
+        </div>
+      </section>
+
+      <section class="block attach-block">
+        <div class="block-title">
+          <span>| ANEXAR ARQUIVOS <b id="fileRatio">[ 0 / 1 ]</b></span>
+          <div class="mini-actions">
+            <button id="clearFiles" title="Remover arquivos">&times;</button>
+            <button title="Abrir anexos">&#8964;</button>
+          </div>
+        </div>
+        <label class="drop-zone">
+          <span id="fileLabel">Selecionar imagem, vídeo, PDF ou áudio</span>
+          <input type="file" id="fileInput" accept="image/*,video/*,application/pdf,audio/*" />
+        </label>
+      </section>
+
+      <section class="interval">
+        <label>
+          Intervalo (segundos)
+          <div class="interval-grid">
+            <input type="number" id="minDelay" min="1" value="2" />
+            <input type="number" id="maxDelay" min="1" value="10" />
+          </div>
+        </label>
+      </section>
+
+      <section class="send-row">
+        <button class="prepare" id="prepareBtn">Preparar</button>
+        <button class="send" id="sendBtn" disabled>ENVIAR</button>
+      </section>
+
+      <section class="progress-card">
+        <div class="progress-meta">
+          <span id="statusText">Sessão offline</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="progress"><div id="progressBar"></div></div>
+        <div class="stats">
+          <span>Enviados <b id="sentCount">0</b></span>
+          <span>Falhas <b id="failCount">0</b></span>
+          <span>Aguardando <b id="waitCount">0</b></span>
+        </div>
+        <div class="control-row">
+          <button id="pauseBtn">Pausar</button>
+          <button id="resumeBtn">Continuar</button>
+          <button id="cancelBtn">Cancelar</button>
+        </div>
+      </section>
+
+      <section class="terminal">
+        <div class="terminal-title">LOGS EM TEMPO REAL</div>
+        <div id="logs"></div>
+      </section>
+
+      <footer class="footer">
+        <div>
+          <strong>Agência WINC</strong>
+          <small>Sistema profissional de prospecção e automação via WhatsApp</small>
+        </div>
+        <div>
+          <strong>Mapa &rarr; Captura &rarr; Disparo &rarr; CRM</strong>
+          <small>Fluxo premium para operações comerciais modernas</small>
+        </div>
+      </footer>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

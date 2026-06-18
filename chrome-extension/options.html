@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DISPARO WINC Configurações</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <p>DISPARO WINC</p>
+        <h1>Configurações da extensão</h1>
+        <label>
+          URL do backend / ponte WPP
+          <input id="bridgeUrl" placeholder="http://localhost:3333/api" />
+        </label>
+        <label>
+          Token de integração
+          <input id="token" type="password" placeholder="Cole seu token aqui" />
+        </label>
+        <div class="grid">
+          <label>
+            Delay mínimo
+            <input id="minDelay" type="number" min="1" />
+          </label>
+          <label>
+            Delay máximo
+            <input id="maxDelay" type="number" min="1" />
+          </label>
+        </div>
+        <label class="toggle">
+          <span>Modo seguro</span>
+          <input id="safeMode" type="checkbox" />
+        </label>
+        <label class="toggle">
+          <span>Sons e notificações</span>
+          <input id="sound" type="checkbox" />
+        </label>
+        <button id="saveBtn">Salvar</button>
+        <div class="hint" id="hint">Pronto para configurar.</div>
+      </section>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>
