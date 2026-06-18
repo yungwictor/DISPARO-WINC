@@ -1,0 +1,1039 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#270128" />
+    <title>DISPARO WINC | Demo Pública</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --void: #120016;
+        --graphite: #270128;
+        --panel: rgba(39, 1, 40, 0.84);
+        --line: rgba(0, 255, 1, 0.22);
+        --neon: #00ff01;
+        --mint: #e7ffe8;
+        --acid: #00c90b;
+        --purple: #721d7b;
+        --danger: #ff4d6d;
+        --amber: #ffcc66;
+        --text: #f4fff7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        background:
+          radial-gradient(circle at 12% 8%, rgba(114, 29, 123, 0.42), transparent 30%),
+          radial-gradient(circle at 82% 18%, rgba(0, 255, 1, 0.12), transparent 24%),
+          linear-gradient(135deg, #120016, #270128 48%, #050006);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(39, 255, 136, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(39, 255, 136, 0.055) 1px, transparent 1px);
+        background-size: 54px 54px;
+        mask-image: linear-gradient(180deg, black, rgba(0, 0, 0, 0.72), transparent 92%);
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        opacity: 0.13;
+        background: linear-gradient(180deg, transparent 0 48%, rgba(39, 255, 136, 0.1) 49%, transparent 50%);
+        background-size: 100% 7px;
+      }
+
+      button,
+      input,
+      textarea,
+      select {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--line);
+          background: linear-gradient(180deg, rgba(39, 1, 40, 0.96), rgba(8, 0, 10, 0.96));
+        box-shadow: 18px 0 70px rgba(0, 0, 0, 0.38);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 22px 18px;
+      }
+
+      .brand-logo {
+        width: 156px;
+        max-width: 100%;
+        height: auto;
+        filter: drop-shadow(0 0 14px rgba(0, 255, 1, 0.42));
+      }
+
+      .mark {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(39, 255, 136, 0.42);
+        border-radius: 12px;
+        color: var(--neon);
+        background: linear-gradient(145deg, rgba(39, 255, 136, 0.18), rgba(39, 255, 136, 0.02));
+        box-shadow: 0 0 24px rgba(39, 255, 136, 0.25);
+        font-weight: 1000;
+      }
+
+      .brand-title,
+      .hero-title {
+        color: #effff4;
+        font-weight: 1000;
+        letter-spacing: 0.08em;
+        text-shadow: 0 0 16px rgba(39, 255, 136, 0.52), 0 0 38px rgba(39, 255, 136, 0.2);
+      }
+
+      .brand-sub {
+        margin-top: 3px;
+        color: rgba(185, 255, 214, 0.5);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+
+      .nav {
+        display: grid;
+        gap: 8px;
+        padding: 8px 14px;
+      }
+
+      .nav button,
+      .ghost,
+      .primary,
+      .control {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        padding: 0 14px;
+        font-weight: 900;
+        transition: 180ms ease;
+      }
+
+      .nav button {
+        justify-content: flex-start;
+        color: rgba(255, 255, 255, 0.58);
+        background: transparent;
+      }
+
+      .nav button.active,
+      .nav button:hover {
+        color: var(--neon);
+        border-color: rgba(39, 255, 136, 0.22);
+        background: rgba(39, 255, 136, 0.08);
+      }
+
+      .sidebar-foot {
+        margin-top: auto;
+        padding: 16px;
+        color: rgba(255, 255, 255, 0.46);
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .main {
+        min-width: 0;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        min-height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        border-bottom: 1px solid rgba(39, 255, 136, 0.1);
+        background: rgba(2, 6, 4, 0.76);
+        backdrop-filter: blur(22px);
+        padding: 0 24px;
+      }
+
+      .section-kicker {
+        margin: 0;
+        color: rgba(39, 255, 136, 0.6);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1,
+      h2,
+      h3 {
+        letter-spacing: 0;
+      }
+
+      .topbar h1 {
+        margin: 5px 0 0;
+        font-size: 24px;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(39, 255, 136, 0.38);
+        border-radius: 999px;
+        padding: 7px 12px;
+        color: var(--neon);
+        background: rgba(39, 255, 136, 0.08);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .status::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 99px;
+        background: currentColor;
+        box-shadow: 0 0 12px currentColor;
+      }
+
+      .status.off {
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.45);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+        gap: 22px;
+        align-items: stretch;
+      }
+
+      .card {
+        position: relative;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)), var(--panel);
+        box-shadow: 0 24px 90px rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(22px);
+      }
+
+      .card-pad {
+        padding: 22px;
+      }
+
+      .hero-title {
+        margin: 14px 0 16px;
+        max-width: 780px;
+        font-size: clamp(48px, 8vw, 96px);
+        line-height: 0.92;
+      }
+
+      .hero-logo {
+        display: block;
+        width: min(520px, 92%);
+        height: auto;
+        margin: 8px 0 18px;
+        filter: drop-shadow(0 0 24px rgba(0, 255, 1, 0.38));
+      }
+
+      .hero-copy {
+        max-width: 740px;
+        color: rgba(185, 255, 214, 0.68);
+        font-size: 18px;
+        line-height: 1.75;
+      }
+
+      .primary {
+        border-color: rgba(39, 255, 136, 0.62);
+        color: #03140a;
+        background: linear-gradient(135deg, #e7ffe8, #00ff01 48%, #00c90b);
+        box-shadow: 0 0 28px rgba(39, 255, 136, 0.32);
+      }
+
+      .primary:hover,
+      .ghost:hover,
+      .control:hover {
+        transform: translateY(-2px);
+      }
+
+      .ghost,
+      .control {
+        border-color: rgba(39, 255, 136, 0.16);
+        color: rgba(255, 255, 255, 0.76);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .ghost:hover,
+      .control:hover {
+        color: var(--neon);
+        border-color: rgba(39, 255, 136, 0.36);
+        background: rgba(39, 255, 136, 0.08);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 22px;
+      }
+
+      .metric {
+        padding: 18px;
+      }
+
+      .metric span {
+        color: rgba(255, 255, 255, 0.42);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 10px;
+        color: white;
+        font-size: 34px;
+        font-weight: 1000;
+      }
+
+      .qrbox {
+        display: grid;
+        place-items: center;
+        min-height: 100%;
+        padding: 22px;
+      }
+
+      .qr {
+        width: min(100%, 260px);
+        aspect-ratio: 1;
+        display: grid;
+        grid-template-columns: repeat(13, 1fr);
+        gap: 5px;
+        border: 1px solid rgba(39, 255, 136, 0.24);
+        border-radius: 20px;
+        padding: 22px;
+        background: rgba(0, 0, 0, 0.34);
+        box-shadow: inset 0 0 34px rgba(39, 255, 136, 0.08), 0 0 34px rgba(39, 255, 136, 0.14);
+      }
+
+      .qr i {
+        border-radius: 3px;
+        background: rgba(39, 255, 136, 0.18);
+      }
+
+      .qr i.on {
+        background: var(--neon);
+        box-shadow: 0 0 10px rgba(39, 255, 136, 0.6);
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 420px;
+        gap: 22px;
+        margin-top: 22px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      label {
+        display: block;
+        color: rgba(255, 255, 255, 0.52);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        margin-top: 8px;
+        border: 1px solid rgba(39, 255, 136, 0.14);
+        border-radius: 10px;
+        outline: none;
+        padding: 13px 14px;
+        color: white;
+        background: rgba(0, 0, 0, 0.26);
+      }
+
+      textarea {
+        resize: vertical;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: rgba(39, 255, 136, 0.58);
+        box-shadow: 0 0 0 4px rgba(39, 255, 136, 0.08);
+      }
+
+      .vars {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 16px 0 8px;
+      }
+
+      .chip {
+        display: inline-flex;
+        min-height: 30px;
+        align-items: center;
+        border: 1px solid rgba(39, 255, 136, 0.18);
+        border-radius: 99px;
+        padding: 0 12px;
+        color: var(--neon);
+        background: rgba(39, 255, 136, 0.07);
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .progress {
+        height: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(39, 255, 136, 0.18);
+        border-radius: 99px;
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      .bar {
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #00ff01, #00c90b);
+        box-shadow: 0 0 24px rgba(39, 255, 136, 0.44);
+        transition: width 360ms ease;
+      }
+
+      .counts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .count {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 12px 8px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      .count strong {
+        display: block;
+        color: var(--neon);
+        font-size: 26px;
+        font-weight: 1000;
+      }
+
+      .count span {
+        display: block;
+        margin-top: 4px;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .terminal {
+        margin-top: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(39, 255, 136, 0.16);
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.42);
+      }
+
+      .terminal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(39, 255, 136, 0.1);
+        padding: 12px 14px;
+        color: var(--neon);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .log {
+        height: 300px;
+        overflow: auto;
+        padding: 8px 0;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      }
+
+      .log div {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 10px;
+        padding: 7px 14px;
+        color: rgba(185, 255, 214, 0.62);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .log time {
+        color: rgba(39, 255, 136, 0.48);
+      }
+
+      .log .ok p {
+        color: rgba(39, 255, 136, 0.92);
+      }
+
+      .log .warn p {
+        color: rgba(255, 204, 102, 0.92);
+      }
+
+      .history {
+        margin-top: 22px;
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        min-width: 780px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 15px 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        text-align: left;
+      }
+
+      th {
+        color: rgba(255, 255, 255, 0.42);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      td {
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .mobile-toggle {
+        display: none;
+      }
+
+      @media (max-width: 1100px) {
+        .hero,
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .metrics {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 820px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: fixed;
+          z-index: 40;
+          transform: translateX(-100%);
+          transition: transform 180ms ease;
+        }
+
+        .sidebar.open {
+          transform: translateX(0);
+        }
+
+        .mobile-toggle {
+          display: inline-flex;
+        }
+
+        .topbar {
+          padding: 0 14px;
+        }
+
+        .content {
+          padding: 14px;
+        }
+
+        .hero-title {
+          font-size: 48px;
+        }
+
+        .form-grid,
+        .metrics,
+        .counts,
+        .controls {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <img src="assets/winc-logo.png" alt="Agência WINC" class="brand-logo" />
+        </div>
+        <nav class="nav">
+          <button class="active" data-view="dashboard">Dashboard</button>
+          <button data-view="disparos">Disparos</button>
+          <button data-view="historico">Histórico</button>
+          <button data-view="conexoes">Conexões WhatsApp</button>
+          <button data-view="config">Configurações</button>
+        </nav>
+        <div class="sidebar-foot">
+          Demo pública sem envio real.<br />
+          Backend completo disponível na versão local Node.js.
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="ghost mobile-toggle" id="menuBtn">Menu</button>
+            <div>
+              <p class="section-kicker">Painel operacional</p>
+              <h1 id="viewTitle">Dashboard</h1>
+            </div>
+          </div>
+          <span class="status off" id="sessionStatus">offline</span>
+        </header>
+
+        <div class="content">
+          <section class="hero">
+            <div class="card card-pad">
+              <p class="section-kicker">Campanhas em massa com controle seguro</p>
+              <img src="assets/winc-logo.png" alt="Agência WINC" class="hero-logo" />
+              <h2 class="hero-title">DISPARO WINC</h2>
+              <p class="hero-copy">
+                Plataforma premium dark neon para validação de números, personalização dinâmica,
+                fila de disparos, progresso em tempo real, histórico e conexão WhatsApp via QR Code.
+              </p>
+              <div class="actions">
+                <button class="primary" id="connectBtn">Conectar WhatsApp</button>
+                <button class="ghost" data-jump="disparos">Nova campanha</button>
+              </div>
+              <div class="metrics">
+                <article class="card metric"><span>Enviados</span><strong id="mSent">0</strong></article>
+                <article class="card metric"><span>Falhados</span><strong id="mFail">0</strong></article>
+                <article class="card metric"><span>Aguardando</span><strong id="mWait">0</strong></article>
+                <article class="card metric"><span>Contatos</span><strong id="mContacts">3</strong></article>
+              </div>
+            </div>
+            <div class="card qrbox">
+              <div>
+                <p class="section-kicker" style="text-align:center;margin-bottom:16px">QR Code WPP Connect</p>
+                <div class="qr" id="qr"></div>
+                <p style="margin:16px 0 0;text-align:center;color:rgba(255,255,255,.52);font-size:13px">
+                  Demo público: pareamento visual simulado.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="workspace" id="disparos">
+            <div class="card card-pad">
+              <p class="section-kicker">Área de disparos</p>
+              <h3 style="font-size:28px;margin:8px 0 18px">Campanha personalizada</h3>
+              <div class="form-grid">
+                <label>Nome da campanha
+                  <input id="campaignName" value="Campanha Nexus Pública" />
+                </label>
+                <label>Provider
+                  <select id="provider">
+                    <option value="wppconnect">WPP Connect</option>
+                    <option value="official">API Oficial</option>
+                  </select>
+                </label>
+                <label>Delay minimo
+                  <input id="delayMin" type="number" min="1" value="2" />
+                </label>
+                <label>Delay maximo
+                  <input id="delayMax" type="number" min="1" value="5" />
+                </label>
+              </div>
+              <label style="margin-top:16px">Múltiplos números
+                <textarea id="numbers" rows="8">+5511991111001;Ana Costa;VIP;Renovacao;20/05/2026;Premium
++5511991111002;Bruno Lima;Lead quente;Segmento A;21/05/2026;Pro
++5511991111003;Carla Mendes;Cliente;Segmento B;22/05/2026;Start</textarea>
+              </label>
+              <div class="actions">
+                <button class="ghost" id="validateBtn">VALIDAR números</button>
+                <button class="ghost" id="importBtn">Importar contatos</button>
+                <button class="ghost" id="groupsBtn">Importar grupos</button>
+              </div>
+              <div class="vars">
+                <button class="chip" data-var="{nome}">{nome}</button>
+                <button class="chip" data-var="{campo1}">{campo1}</button>
+                <button class="chip" data-var="{campo2}">{campo2}</button>
+                <button class="chip" data-var="{vencimento}">{vencimento}</button>
+                <button class="chip" data-var="{plano}">{plano}</button>
+              </div>
+              <label>Mensagem
+                <textarea id="message" rows="5">Ola {nome}, tudo certo? Seu plano {plano} vence em {vencimento}. Posso te ajudar com a renovacao? 😊</textarea>
+              </label>
+              <div class="actions">
+                <button class="primary" id="startBtn">Criar e disparar</button>
+                <button class="ghost" id="saveBtn">Salvar rascunho</button>
+                <button class="ghost">Anexar imagem/video/pdf/audio</button>
+              </div>
+            </div>
+
+            <aside>
+              <div class="card card-pad">
+                <p class="section-kicker">Progresso</p>
+                <h3 id="activeCampaign" style="font-size:24px;margin:8px 0 18px">Nenhuma campanha ativa</h3>
+                <div style="display:flex;justify-content:space-between;color:rgba(185,255,214,.56);font-family:monospace;font-size:12px;margin-bottom:8px">
+                  <span id="progressText">0%</span>
+                  <span id="ratioText">0/0</span>
+                </div>
+                <div class="progress"><div class="bar" id="bar"></div></div>
+                <div class="counts">
+                  <div class="count"><strong id="sent">0</strong><span>enviados</span></div>
+                  <div class="count"><strong id="failed" style="color:var(--danger)">0</strong><span>falhados</span></div>
+                  <div class="count"><strong id="waiting" style="color:var(--amber)">0</strong><span>aguardando</span></div>
+                </div>
+                <div class="controls">
+                  <button class="control" id="pauseBtn">Pausar</button>
+                  <button class="control" id="resumeBtn">Continuar</button>
+                  <button class="control" id="cancelBtn">Cancelar</button>
+                </div>
+              </div>
+              <div class="terminal">
+                <div class="terminal-head"><span>Logs em tempo real</span><span id="logCount">0</span></div>
+                <div class="log" id="logs"></div>
+              </div>
+            </aside>
+          </section>
+
+          <section class="card history" id="historico">
+            <table>
+              <thead>
+                <tr>
+                  <th>Campanha</th>
+                  <th>Status</th>
+                  <th>Provider</th>
+                  <th>Enviados</th>
+                  <th>Falhas</th>
+                  <th>Criada em</th>
+                </tr>
+              </thead>
+              <tbody id="historyRows">
+                <tr>
+                  <td>Campanha Nexus Pública</td>
+                  <td>standby</td>
+                  <td>WPP Connect</td>
+                  <td>0/3</td>
+                  <td>0</td>
+                  <td>agora</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const state = {
+        online: false,
+        paused: false,
+        cancelled: false,
+        running: false,
+        total: 0,
+        sent: 0,
+        failed: 0,
+        waiting: 0,
+        logs: 0
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const now = () => new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+      function makeQr() {
+        const qr = $("qr");
+        qr.replaceChildren();
+        for (let i = 0; i < 169; i++) {
+          const cell = document.createElement("i");
+          if ((i * 7 + i % 11) % 4 !== 0) cell.className = "on";
+          qr.appendChild(cell);
+        }
+      }
+
+      function log(message, kind = "info") {
+        const row = document.createElement("div");
+        row.className = kind;
+        const time = document.createElement("time");
+        time.textContent = now();
+        const text = document.createElement("p");
+        text.textContent = message;
+        row.append(time, text);
+        $("logs").prepend(row);
+        state.logs += 1;
+        $("logCount").textContent = state.logs;
+      }
+
+      function parseNumbers() {
+        return $("numbers").value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
+          const [phone, nome, campo1, campo2, vencimento, plano] = line.split(/[;,]/).map((part) => (part || "").trim());
+          return { phone, nome, campo1, campo2, vencimento, plano };
+        });
+      }
+
+      function renderMessage(template, contact) {
+        return template
+          .replaceAll("{nome}", contact.nome || "")
+          .replaceAll("{campo1}", contact.campo1 || "")
+          .replaceAll("{campo2}", contact.campo2 || "")
+          .replaceAll("{vencimento}", contact.vencimento || "")
+          .replaceAll("{plano}", contact.plano || "");
+      }
+
+      function updateProgress() {
+        const done = state.sent + state.failed;
+        const pct = state.total ? Math.round((done / state.total) * 100) : 0;
+        $("sent").textContent = state.sent;
+        $("failed").textContent = state.failed;
+        $("waiting").textContent = state.waiting;
+        $("mSent").textContent = state.sent;
+        $("mFail").textContent = state.failed;
+        $("mWait").textContent = state.waiting;
+        $("mContacts").textContent = parseNumbers().length;
+        $("bar").style.width = pct + "%";
+        $("progressText").textContent = pct + "%";
+        $("ratioText").textContent = `${done}/${state.total}`;
+      }
+
+      function validPhone(phone) {
+        const digits = String(phone || "").replace(/\D/g, "");
+        return digits.length >= 10 && digits.length <= 15 && !/^(\d)\1+$/.test(digits);
+      }
+
+      function setView(view) {
+        const titles = {
+          dashboard: "Dashboard",
+          disparos: "Disparos",
+          historico: "Histórico",
+          conexoes: "Conexões WhatsApp",
+          config: "Configurações"
+        };
+        $("viewTitle").textContent = titles[view] || "Dashboard";
+        document.querySelectorAll(".nav button").forEach((btn) => btn.classList.toggle("active", btn.dataset.view === view));
+        if (view === "disparos") $("disparos").scrollIntoView({ behavior: "smooth", block: "start" });
+        if (view === "historico") $("historico").scrollIntoView({ behavior: "smooth", block: "start" });
+        $("sidebar").classList.remove("open");
+      }
+
+      $("connectBtn").addEventListener("click", () => {
+        state.online = !state.online;
+        $("sessionStatus").textContent = state.online ? "online" : "offline";
+        $("sessionStatus").classList.toggle("off", !state.online);
+        log(state.online ? "Sessao WPP Connect simulada ficou online." : "Sessao desconectada.", state.online ? "ok" : "warn");
+      });
+
+      $("validateBtn").addEventListener("click", () => {
+        const contacts = parseNumbers();
+        const valid = contacts.filter((item) => validPhone(item.phone));
+        const invalid = contacts.length - valid.length;
+        log(`Validação concluída: ${valid.length} válidos, ${invalid} inválidos, 0 duplicados.`, invalid ? "warn" : "ok");
+        $("mContacts").textContent = valid.length;
+      });
+
+      $("importBtn").addEventListener("click", () => {
+        $("numbers").value += "\n+5511991111004;Diego Rocha;Cliente;Segmento C;24/05/2026;Enterprise";
+        log("Contatos importados para a campanha.", "ok");
+        updateProgress();
+      });
+
+      $("groupsBtn").addEventListener("click", () => {
+        $("numbers").value += "\n+5511991111005;Grupo Clientes VIP;Grupo;143;25/05/2026;Winc";
+        log("Grupos importados como base operacional.", "ok");
+        updateProgress();
+      });
+
+      document.querySelectorAll("[data-var]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          $("message").value += " " + btn.dataset.var;
+        });
+      });
+
+      $("saveBtn").addEventListener("click", () => {
+        log(`Rascunho "${$("campaignName").value}" salvo no histórico público.`, "ok");
+      });
+
+      $("startBtn").addEventListener("click", async () => {
+        if (!state.online) {
+          log("Conecte o WhatsApp antes de disparar.", "warn");
+          return;
+        }
+        if (state.running) return;
+
+        const contacts = parseNumbers().filter((item) => validPhone(item.phone));
+        state.total = contacts.length;
+        state.waiting = contacts.length;
+        state.sent = 0;
+        state.failed = 0;
+        state.cancelled = false;
+        state.paused = false;
+        state.running = true;
+        $("activeCampaign").textContent = $("campaignName").value;
+        updateProgress();
+        log(`Campanha "${$("campaignName").value}" iniciada com ${contacts.length} contatos.`);
+
+        for (const contact of contacts) {
+          if (state.cancelled) break;
+          while (state.paused && !state.cancelled) {
+            await new Promise((resolve) => setTimeout(resolve, 350));
+          }
+          if (state.cancelled) break;
+
+          const delay = Math.floor(Math.random() * (Number($("delayMax").value) - Number($("delayMin").value) + 1)) + Number($("delayMin").value);
+          log(`Aguardando ${delay}s antes de enviar para ${contact.phone}.`);
+          await new Promise((resolve) => setTimeout(resolve, delay * 650));
+
+          const failed = Math.random() < 0.08;
+          if (failed) {
+            state.failed += 1;
+            log(`Falha temporária simulada para ${contact.phone}.`, "warn");
+          } else {
+            state.sent += 1;
+            const preview = renderMessage($("message").value, contact).slice(0, 82);
+            log(`Mensagem enviada para ${contact.phone}: ${preview}`, "ok");
+          }
+          state.waiting = Math.max(0, state.total - state.sent - state.failed);
+          updateProgress();
+        }
+
+        state.running = false;
+        if (state.cancelled) {
+          log("Campanha cancelada pelo operador.", "warn");
+        } else {
+          log("Campanha finalizada com sucesso.", "ok");
+        }
+
+        const historyCells = [
+          $("campaignName").value,
+          state.cancelled ? "cancelled" : "completed",
+          $("provider").value,
+          `${state.sent}/${state.total}`,
+          String(state.failed),
+          new Date().toLocaleString("pt-BR")
+        ];
+        const historyRow = document.createElement("tr");
+        historyCells.forEach((value) => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          historyRow.appendChild(cell);
+        });
+        $("historyRows").replaceChildren(historyRow);
+      });
+
+      $("pauseBtn").addEventListener("click", () => {
+        state.paused = true;
+        log("Campanha pausada.", "warn");
+      });
+
+      $("resumeBtn").addEventListener("click", () => {
+        state.paused = false;
+        log("Campanha continuada.");
+      });
+
+      $("cancelBtn").addEventListener("click", () => {
+        state.cancelled = true;
+        state.waiting = 0;
+        updateProgress();
+      });
+
+      $("menuBtn").addEventListener("click", () => $("sidebar").classList.toggle("open"));
+      document.querySelectorAll("[data-view]").forEach((btn) => btn.addEventListener("click", () => setView(btn.dataset.view)));
+      document.querySelectorAll("[data-jump]").forEach((btn) => btn.addEventListener("click", () => setView(btn.dataset.jump)));
+
+      makeQr();
+      updateProgress();
+      log("DISPARO WINC público inicializado.");
+    </script>
+  </body>
+</html>

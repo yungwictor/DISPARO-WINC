@@ -4,6 +4,10 @@ Dark neon SaaS platform for WhatsApp campaign operations, contact validation, dy
 
 > The anti-blocking layer is implemented as a safe reputation and compliance mode: randomized delays, quiet windows, deduplication, opt-in controls, and pause/cancel actions. The project ships with pluggable adapters and simulated sending, ready to connect to WPP Connect or the Official API with real credentials.
 
+## Public Demo
+
+Stable public demo: https://yungwictor.github.io/DISPARO-WINC/
+
 ## Stack
 
 - Frontend: React, Vite, Tailwind CSS, Framer Motion, Lucide Icons, Socket.io Client
