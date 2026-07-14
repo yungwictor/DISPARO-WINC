@@ -31,6 +31,7 @@ Stable public demo: https://yungwictor.github.io/DISPARO-WINC/
 - Simulated WhatsApp QR Code connection
 - WPP Connect / Official API provider switch
 - Assisted Facebook Groups campaign section
+- Assisted WhatsApp Groups campaign section with configurable queue intervals
 - Online/offline session status
 - Multiple-number input
 - CSV upload
@@ -50,6 +51,7 @@ Stable public demo: https://yungwictor.github.io/DISPARO-WINC/
 - Session warm-up workflow
 - Toasts and subtle notification sound
 - Manual Facebook Groups workflow with post copy, approval status, and group tracking
+- WhatsApp Groups workflow with message copy, consent status, interval settings, and queue preparation
 
 ## Automatic Setup
 

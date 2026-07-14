@@ -707,6 +707,7 @@
           <button class="active" data-view="dashboard">Dashboard</button>
           <button data-view="disparos">Disparos</button>
           <button data-view="facebook">Facebook Groups</button>
+          <button data-view="whatsapp-grupos">Grupos WhatsApp</button>
           <button data-view="historico">Histórico</button>
           <button data-view="conexoes">Conexões WhatsApp</button>
           <button data-view="config">Configurações</button>
@@ -905,6 +906,98 @@
             </div>
           </section>
 
+          <section class="card card-pad facebook-section" id="whatsapp-grupos">
+            <p class="section-kicker">Grupos WhatsApp</p>
+            <h3 style="font-size:28px;margin:8px 0 10px">Disparo assistido para grupos</h3>
+            <p style="margin:0;color:rgba(255,255,255,.58);line-height:1.7">
+              Planeje mensagens para grupos próprios ou autorizados, com controle de permissão, status e registro de respostas.
+            </p>
+
+            <div class="facebook-stats">
+              <article class="card metric"><span>Grupos opt-in</span><strong>24</strong></article>
+              <article class="card metric"><span>Aprovados</span><strong>18</strong></article>
+              <article class="card metric"><span>Mensagens</span><strong>9</strong></article>
+              <article class="card metric"><span>Respostas</span><strong>42</strong></article>
+            </div>
+
+            <div class="facebook-grid">
+              <div>
+                <label>Mensagem para grupos
+                  <textarea id="whatsappGroupMessage" rows="8">Olá, grupo! Passando para avisar que a Agência WINC está com uma condição especial para negócios que querem organizar campanhas e captar mais clientes com segurança. Quem quiser receber o material, pode me chamar no privado.</textarea>
+                </label>
+                <div class="actions" style="margin-top:14px">
+                  <button class="primary" id="copyWhatsAppGroupMessage">Copiar mensagem</button>
+                  <button class="ghost" id="openWhatsAppWeb">Abrir WhatsApp Web</button>
+                </div>
+                <div class="form-grid" style="margin-top:14px">
+                  <label>Intervalo mínimo (segundos)
+                    <input id="whatsappIntervalMin" type="number" min="15" value="45" />
+                  </label>
+                  <label>Intervalo máximo (segundos)
+                    <input id="whatsappIntervalMax" type="number" min="15" value="120" />
+                  </label>
+                </div>
+                <div class="actions" style="margin-top:14px">
+                  <button class="ghost" id="prepareWhatsAppGroupQueue">Preparar fila agendada</button>
+                </div>
+              </div>
+              <aside class="card" style="padding:16px">
+                <p class="section-kicker">Fluxo seguro</p>
+                <div style="display:grid;gap:10px;margin-top:14px">
+                  <div class="fb-step"><b>1</b><span>Confirmar permissão do grupo</span></div>
+                  <div class="fb-step"><b>2</b><span>Copiar mensagem aprovada</span></div>
+                  <div class="fb-step"><b>3</b><span>Abrir WhatsApp Web</span></div>
+                  <div class="fb-step"><b>4</b><span>Publicar manualmente</span></div>
+                  <div class="fb-step"><b>5</b><span>Registrar respostas</span></div>
+                </div>
+              </aside>
+            </div>
+
+            <div style="overflow-x:auto;margin-top:18px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Grupo</th>
+                    <th>Categoria</th>
+                    <th>Membros</th>
+                    <th>Permissão</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Clientes WINC VIP</td>
+                    <td>Clientes</td>
+                    <td>248</td>
+                    <td>Opt-in</td>
+                    <td>Aprovado</td>
+                  </tr>
+                  <tr>
+                    <td>Parceiros Comerciais</td>
+                    <td>Parcerias</td>
+                    <td>96</td>
+                    <td>Admin autorizado</td>
+                    <td>Aprovado</td>
+                  </tr>
+                  <tr>
+                    <td>Leads Workshop</td>
+                    <td>Evento</td>
+                    <td>183</td>
+                    <td>Participantes</td>
+                    <td>Revisar</td>
+                  </tr>
+                  <tr>
+                    <td>Comunidade Local</td>
+                    <td>Prospects</td>
+                    <td>421</td>
+                    <td>Pendente</td>
+                    <td>Aguardando</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
           <section class="card history" id="historico">
             <table>
               <thead>
@@ -1013,6 +1106,7 @@
           dashboard: "Dashboard",
           disparos: "Disparos",
           facebook: "Facebook Groups",
+          "whatsapp-grupos": "Grupos WhatsApp",
           historico: "Histórico",
           conexoes: "Conexões WhatsApp",
           config: "Configurações"
@@ -1021,6 +1115,7 @@
         document.querySelectorAll(".nav button").forEach((btn) => btn.classList.toggle("active", btn.dataset.view === view));
         if (view === "disparos") $("disparos").scrollIntoView({ behavior: "smooth", block: "start" });
         if (view === "facebook") $("facebook").scrollIntoView({ behavior: "smooth", block: "start" });
+        if (view === "whatsapp-grupos") $("whatsapp-grupos").scrollIntoView({ behavior: "smooth", block: "start" });
         if (view === "historico") $("historico").scrollIntoView({ behavior: "smooth", block: "start" });
         $("sidebar").classList.remove("open");
       }
@@ -1158,6 +1253,29 @@
       $("openFacebookGroups").addEventListener("click", () => {
         window.open("https://www.facebook.com/groups/feed/", "_blank", "noopener,noreferrer");
         log("Central de grupos do Facebook aberta para publicação manual.", "ok");
+      });
+
+      $("copyWhatsAppGroupMessage").addEventListener("click", async () => {
+        const text = $("whatsappGroupMessage").value;
+        try {
+          if (navigator.clipboard) await navigator.clipboard.writeText(text);
+          log("Mensagem para grupos do WhatsApp copiada.", "ok");
+        } catch (error) {
+          log("Não foi possível copiar automaticamente. Selecione o texto manualmente.", "warn");
+        }
+      });
+
+      $("openWhatsAppWeb").addEventListener("click", () => {
+        window.open("https://web.whatsapp.com/", "_blank", "noopener,noreferrer");
+        log("WhatsApp Web aberto para publicação manual em grupos autorizados.", "ok");
+      });
+
+      $("prepareWhatsAppGroupQueue").addEventListener("click", () => {
+        const min = Math.max(15, Number($("whatsappIntervalMin").value || 45));
+        const max = Math.max(min, Number($("whatsappIntervalMax").value || 120));
+        $("whatsappIntervalMin").value = min;
+        $("whatsappIntervalMax").value = max;
+        log(`Fila agendada para grupos WhatsApp preparada com intervalo de ${min}s a ${max}s entre grupos autorizados.`, "ok");
       });
 
       $("menuBtn").addEventListener("click", () => $("sidebar").classList.toggle("open"));
