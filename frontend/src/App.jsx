@@ -61,6 +61,7 @@ const USER_KEY = "winc_user";
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "disparos", label: "Disparos", icon: Send },
+  { id: "facebook", label: "Facebook Groups", icon: Users },
   { id: "historico", label: "Historico", icon: History },
   { id: "conexoes", label: "Conexoes", icon: PlugZap },
   { id: "config", label: "Configuracoes", icon: Settings }
@@ -1016,6 +1017,136 @@ function SettingsPage({ settings, setSettings, notify }) {
   );
 }
 
+function FacebookGroupsPage({ notify }) {
+  const [postText, setPostText] = useState(
+    "Olá pessoal! A Agência WINC preparou uma condição especial para empresas que querem captar mais clientes com campanhas organizadas. Quem quiser receber o material, comenta WINC ou chama no privado."
+  );
+
+  const groupRows = [
+    { name: "Empreendedores Brasil", niche: "Negócios locais", members: "184k", status: "Aprovado" },
+    { name: "Marketing para Pequenas Empresas", niche: "Marketing", members: "92k", status: "Revisar regras" },
+    { name: "Prestadores de Serviço BR", niche: "Serviços", members: "68k", status: "Aguardando" },
+    { name: "Comércio Local e Vendas", niche: "Vendas", members: "41k", status: "Aprovado" }
+  ];
+
+  const copyPost = async () => {
+    try {
+      await navigator.clipboard.writeText(postText);
+      notify("Post copiado", "Texto pronto para publicação manual nos grupos aprovados.", "success");
+    } catch (error) {
+      notify("Falha ao copiar", error.message, "error");
+    }
+  };
+
+  const openFacebookGroups = () => {
+    window.open("https://www.facebook.com/groups/feed/", "_blank", "noopener,noreferrer");
+    notify("Facebook aberto", "Revise as regras de cada grupo antes de publicar.", "info");
+  };
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[1fr_0.72fr]">
+      <section className="neon-card p-5">
+        <div className="flex flex-col gap-4 border-b border-neon/10 pb-5 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-neon/60">Facebook Groups</p>
+            <h3 className="mt-2 text-2xl font-black text-white">Disparo assistido em grupos</h3>
+          </div>
+          <StatusPill status="online" label="manual seguro" />
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-4">
+          {[
+            ["Grupos mapeados", "38"],
+            ["Aprovados", "16"],
+            ["Posts prontos", "7"],
+            ["Pendentes", "3"]
+          ].map(([label, value]) => (
+            <div className="counter-box text-left" key={label}>
+              <strong>{value}</strong>
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_0.72fr]">
+          <label className="field-label">
+            Copy para grupos
+            <textarea
+              className="winc-input mt-2 min-h-[220px]"
+              value={postText}
+              onChange={(event) => setPostText(event.target.value)}
+            />
+          </label>
+          <div className="space-y-3">
+            <button className="neon-button w-full justify-center" onClick={copyPost} type="button">
+              <ClipboardCheck size={18} />
+              Copiar post
+            </button>
+            <button className="ghost-button w-full justify-center" onClick={openFacebookGroups} type="button">
+              <Users size={18} />
+              Abrir grupos do Facebook
+            </button>
+            <div className="rounded-lg border border-amber/20 bg-amber/5 p-4">
+              <div className="flex gap-3">
+                <ShieldCheck className="mt-0.5 text-amber" size={18} />
+                <p className="text-sm leading-6 text-amber/78">
+                  Publicação assistida: use apenas grupos onde sua postagem é permitida e respeite as regras de cada comunidade.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 overflow-x-auto rounded-xl border border-white/10">
+          <table className="w-full min-w-[720px] text-left">
+            <thead className="bg-white/[0.025] text-xs uppercase tracking-[0.16em] text-white/42">
+              <tr>
+                <th className="px-5 py-4">Grupo</th>
+                <th className="px-5 py-4">Nicho</th>
+                <th className="px-5 py-4">Membros</th>
+                <th className="px-5 py-4">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/10">
+              {groupRows.map((group) => (
+                <tr className="transition hover:bg-neon/[0.035]" key={group.name}>
+                  <td className="px-5 py-4 font-bold text-white">{group.name}</td>
+                  <td className="px-5 py-4 text-white/58">{group.niche}</td>
+                  <td className="px-5 py-4 font-mono text-neon">{group.members}</td>
+                  <td className="px-5 py-4"><StatusPill status={group.status === "Aprovado" ? "online" : "pending"} label={group.status} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="space-y-6">
+        <div className="neon-card p-5">
+          <Clock3 className="text-neon" size={24} />
+          <h3 className="mt-4 text-xl font-black text-white">Sequência recomendada</h3>
+          <div className="mt-5 space-y-3">
+            {["Revisar regras do grupo", "Copiar post aprovado", "Publicar manualmente", "Registrar respostas no CRM"].map((step, index) => (
+              <div className="flex items-center gap-3 rounded-lg border border-neon/10 bg-black/25 p-3" key={step}>
+                <span className="grid size-7 place-items-center rounded-lg border border-neon/20 bg-neon/10 font-mono text-xs text-neon">{index + 1}</span>
+                <span className="text-sm text-white/70">{step}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="neon-card p-5">
+          <Sparkles className="text-neon" size={24} />
+          <h3 className="mt-4 text-xl font-black text-white">Modelo humanizado</h3>
+          <p className="mt-3 text-sm leading-6 text-white/54">
+            Crie posts curtos, contextuais e com chamada leve para comentário. Evite repetição agressiva e mantenha histórico por grupo.
+          </p>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export default function App() {
   const [auth, setAuth] = useState(() => ({
     token: sessionStorage.getItem(TOKEN_KEY),
@@ -1140,6 +1271,7 @@ export default function App() {
         />
       );
     }
+    if (active === "facebook") return <FacebookGroupsPage notify={notify} />;
     if (active === "historico") return <HistoryPage campaigns={campaigns} loadCampaign={loadCampaign} />;
     if (active === "conexoes") return <ConnectionsPage session={session} setSession={setSession} notify={notify} />;
     return <SettingsPage settings={settings} setSettings={setSettings} notify={notify} />;

@@ -570,6 +570,47 @@
         overflow-x: auto;
       }
 
+      .facebook-section {
+        margin-top: 22px;
+      }
+
+      .facebook-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 16px;
+      }
+
+      .facebook-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin: 18px 0;
+      }
+
+      .fb-step {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid rgba(39, 255, 136, 0.12);
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.24);
+        padding: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 13px;
+      }
+
+      .fb-step b {
+        display: grid;
+        width: 26px;
+        height: 26px;
+        place-items: center;
+        border: 1px solid rgba(39, 255, 136, 0.28);
+        border-radius: 8px;
+        color: var(--neon);
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 12px;
+      }
+
       table {
         width: 100%;
         min-width: 780px;
@@ -645,7 +686,12 @@
         .form-grid,
         .metrics,
         .counts,
+        .facebook-stats,
         .controls {
+          grid-template-columns: 1fr;
+        }
+
+        .facebook-grid {
           grid-template-columns: 1fr;
         }
       }
@@ -660,6 +706,7 @@
         <nav class="nav">
           <button class="active" data-view="dashboard">Dashboard</button>
           <button data-view="disparos">Disparos</button>
+          <button data-view="facebook">Facebook Groups</button>
           <button data-view="historico">Histórico</button>
           <button data-view="conexoes">Conexões WhatsApp</button>
           <button data-view="config">Configurações</button>
@@ -789,6 +836,75 @@
             </aside>
           </section>
 
+          <section class="card card-pad facebook-section" id="facebook">
+            <p class="section-kicker">Facebook Groups</p>
+            <h3 style="font-size:28px;margin:8px 0 10px">Disparo assistido em grupos</h3>
+            <p style="margin:0;color:rgba(255,255,255,.58);line-height:1.7">
+              Organize grupos, copies e status para publicações manuais, respeitando as regras de cada comunidade.
+            </p>
+
+            <div class="facebook-stats">
+              <article class="card metric"><span>Mapeados</span><strong>38</strong></article>
+              <article class="card metric"><span>Aprovados</span><strong>16</strong></article>
+              <article class="card metric"><span>Posts prontos</span><strong>7</strong></article>
+              <article class="card metric"><span>Pendentes</span><strong>3</strong></article>
+            </div>
+
+            <div class="facebook-grid">
+              <div>
+                <label>Copy para grupos
+                  <textarea id="facebookPost" rows="8">Olá pessoal! A Agência WINC preparou uma condição especial para empresas que querem captar mais clientes com campanhas organizadas. Quem quiser receber o material, comenta WINC ou chama no privado.</textarea>
+                </label>
+                <div class="actions" style="margin-top:14px">
+                  <button class="primary" id="copyFacebookPost">Copiar post</button>
+                  <button class="ghost" id="openFacebookGroups">Abrir grupos</button>
+                </div>
+              </div>
+              <aside class="card" style="padding:16px">
+                <p class="section-kicker">Sequência segura</p>
+                <div style="display:grid;gap:10px;margin-top:14px">
+                  <div class="fb-step"><b>1</b><span>Revisar regras do grupo</span></div>
+                  <div class="fb-step"><b>2</b><span>Copiar post aprovado</span></div>
+                  <div class="fb-step"><b>3</b><span>Publicar manualmente</span></div>
+                  <div class="fb-step"><b>4</b><span>Registrar respostas no CRM</span></div>
+                </div>
+              </aside>
+            </div>
+
+            <div style="overflow-x:auto;margin-top:18px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Grupo</th>
+                    <th>Nicho</th>
+                    <th>Membros</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Empreendedores Brasil</td>
+                    <td>Negócios locais</td>
+                    <td>184k</td>
+                    <td>Aprovado</td>
+                  </tr>
+                  <tr>
+                    <td>Marketing para Pequenas Empresas</td>
+                    <td>Marketing</td>
+                    <td>92k</td>
+                    <td>Revisar regras</td>
+                  </tr>
+                  <tr>
+                    <td>Prestadores de Serviço BR</td>
+                    <td>Serviços</td>
+                    <td>68k</td>
+                    <td>Aguardando</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
           <section class="card history" id="historico">
             <table>
               <thead>
@@ -896,6 +1012,7 @@
         const titles = {
           dashboard: "Dashboard",
           disparos: "Disparos",
+          facebook: "Facebook Groups",
           historico: "Histórico",
           conexoes: "Conexões WhatsApp",
           config: "Configurações"
@@ -903,6 +1020,7 @@
         $("viewTitle").textContent = titles[view] || "Dashboard";
         document.querySelectorAll(".nav button").forEach((btn) => btn.classList.toggle("active", btn.dataset.view === view));
         if (view === "disparos") $("disparos").scrollIntoView({ behavior: "smooth", block: "start" });
+        if (view === "facebook") $("facebook").scrollIntoView({ behavior: "smooth", block: "start" });
         if (view === "historico") $("historico").scrollIntoView({ behavior: "smooth", block: "start" });
         $("sidebar").classList.remove("open");
       }
@@ -1025,6 +1143,21 @@
         state.cancelled = true;
         state.waiting = 0;
         updateProgress();
+      });
+
+      $("copyFacebookPost").addEventListener("click", async () => {
+        const text = $("facebookPost").value;
+        try {
+          if (navigator.clipboard) await navigator.clipboard.writeText(text);
+          log("Post para grupos do Facebook copiado.", "ok");
+        } catch (error) {
+          log("Não foi possível copiar automaticamente. Selecione o texto manualmente.", "warn");
+        }
+      });
+
+      $("openFacebookGroups").addEventListener("click", () => {
+        window.open("https://www.facebook.com/groups/feed/", "_blank", "noopener,noreferrer");
+        log("Central de grupos do Facebook aberta para publicação manual.", "ok");
       });
 
       $("menuBtn").addEventListener("click", () => $("sidebar").classList.toggle("open"));
