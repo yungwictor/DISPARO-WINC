@@ -16,17 +16,13 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
-      - run: npm ci
+      - run: npm install
         working-directory: backend
       - run: npm test
         working-directory: backend
       - run: npm run check
         working-directory: backend
-      - run: npm ci
+      - run: npm install
         working-directory: frontend
       - run: npm run build
         working-directory: frontend
