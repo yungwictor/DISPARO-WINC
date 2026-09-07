@@ -11,7 +11,7 @@ process.env.ADMIN_PASSWORD = "test-password-not-for-production";
 process.env.JWT_SECRET = "test-secret-that-is-long-enough";
 
 const { db } = await import("../src/config/db.js");
-const { isRecipientOptedOut, recoverInterruptedCampaigns } = await import("../src/services/queueService.js");
+const { applyOptOuts, isRecipientOptedOut, recoverInterruptedCampaigns } = await import("../src/services/queueService.js");
 
 function seedCampaign() {
   const userId = db.prepare("SELECT id FROM users LIMIT 1").get().id;
@@ -71,6 +71,17 @@ test("honors permanent and contact-level opt-out records", () => {
   db.prepare("INSERT INTO opt_outs (phone, reason) VALUES (?, ?)").run("5511988888888", "request");
   assert.equal(isRecipientOptedOut("5511988888888"), true);
   assert.equal(isRecipientOptedOut("5511977777777"), false);
+
+  const campaignId = db.prepare("SELECT id FROM campaigns LIMIT 1").get().id;
+  db.prepare(`
+    INSERT INTO campaign_recipients (campaign_id, phone, status, delivery_key)
+    VALUES (?, '5511988888888', 'pending', 'delivery-opt-out')
+  `).run(campaignId);
+  assert.equal(applyOptOuts(campaignId), 1);
+  assert.equal(
+    db.prepare("SELECT status FROM campaign_recipients WHERE delivery_key = 'delivery-opt-out'").get().status,
+    "opted_out"
+  );
 });
 
 test.after(() => db.close());

@@ -104,6 +104,7 @@ async function runCampaign(campaignId, control) {
 
       campaign = getCampaign(campaignId);
       if (!campaign || control.cancelled) break;
+      applyOptOuts(campaignId);
 
       const next = db.prepare(`
         SELECT * FROM campaign_recipients
@@ -228,9 +229,30 @@ export function recoverInterruptedCampaigns() {
          SET status = 'paused', updated_at = CURRENT_TIMESTAMP
        WHERE status = 'running'
     `).run();
+    db.prepare(`
+      UPDATE campaign_recipients
+         SET status = 'failed', last_error = 'Limite de tentativas atingido antes da interrupcao'
+       WHERE status = 'processing' AND attempt_count >= 3
+    `).run();
     return { recipients: recipients.changes, campaigns: campaigns.changes };
   });
   return recover();
+}
+
+export function applyOptOuts(campaignId) {
+  return db.prepare(`
+    UPDATE campaign_recipients
+       SET status = 'opted_out', last_error = 'Contato opt-out'
+     WHERE campaign_id = ? AND status IN ('pending', 'failed')
+       AND (
+         EXISTS (SELECT 1 FROM opt_outs WHERE opt_outs.phone = campaign_recipients.phone)
+         OR EXISTS (
+           SELECT 1 FROM contacts
+            WHERE contacts.phone = campaign_recipients.phone
+              AND contacts.consent_status = 'opt_out'
+         )
+       )
+  `).run(Number(campaignId)).changes;
 }
 
 export function isRecipientOptedOut(phone) {
