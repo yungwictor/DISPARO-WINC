@@ -112,6 +112,35 @@ CREATE TABLE IF NOT EXISTS settings (
   value TEXT NOT NULL,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS opt_outs (
+  phone TEXT PRIMARY KEY,
+  reason TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+`);
+
+function addColumn(table, name, definition) {
+  const columns = db.prepare(`PRAGMA table_info(${table})`).all();
+  if (!columns.some((column) => column.name === name)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${definition}`);
+  }
+}
+
+addColumn("campaign_recipients", "attempt_count", "INTEGER NOT NULL DEFAULT 0");
+addColumn("campaign_recipients", "delivery_key", "TEXT");
+db.exec(`
+  UPDATE campaign_recipients
+     SET delivery_key = 'campaign-' || campaign_id || '-recipient-' || id
+   WHERE delivery_key IS NULL;
+  DELETE FROM campaign_recipients
+   WHERE id NOT IN (
+     SELECT MIN(id) FROM campaign_recipients GROUP BY campaign_id, phone
+   );
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_recipients_campaign_phone
+    ON campaign_recipients(campaign_id, phone);
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_recipients_delivery_key
+    ON campaign_recipients(delivery_key);
 `);
 
 const userCount = db.prepare("SELECT COUNT(*) AS total FROM users").get().total;

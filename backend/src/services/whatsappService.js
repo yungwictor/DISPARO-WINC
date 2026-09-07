@@ -87,7 +87,7 @@ export function disconnectSession() {
   return session;
 }
 
-export async function sendMessage({ provider, phone, message, attachments = [], safeMode = true }) {
+export async function sendMessage({ provider, phone, message, attachments = [], safeMode = true, idempotencyKey }) {
   const session = getSession();
 
   if (!session || session.status !== "online") {
@@ -110,6 +110,7 @@ export async function sendMessage({ provider, phone, message, attachments = [], 
     phone,
     preview: message.slice(0, 120),
     attachments: attachments.length,
+    idempotencyKey,
     mode: env.officialApiToken || env.wppConnectUrl ? "adapter-ready" : "simulated"
   };
 }

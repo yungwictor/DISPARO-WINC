@@ -24,7 +24,7 @@ function getMetrics(campaignId) {
 
   const totals = statuses.reduce(
     (acc, row) => ({ ...acc, [row.status]: row.total }),
-    { pending: 0, processing: 0, sent: 0, failed: 0, cancelled: 0 }
+    { pending: 0, processing: 0, sent: 0, failed: 0, cancelled: 0, opted_out: 0 }
   );
 
   return {
@@ -33,7 +33,8 @@ function getMetrics(campaignId) {
     failed: totals.failed,
     pending: totals.pending + totals.processing,
     cancelled: totals.cancelled,
-    progress: campaign.total ? Math.round((totals.sent + totals.failed + totals.cancelled) / campaign.total * 100) : 0
+    optedOut: totals.opted_out,
+    progress: campaign.total ? Math.round((totals.sent + totals.failed + totals.cancelled + totals.opted_out) / campaign.total * 100) : 0
   };
 }
 
@@ -107,6 +108,15 @@ async function runCampaign(campaignId, control) {
       const next = db.prepare(`
         SELECT * FROM campaign_recipients
         WHERE campaign_id = ? AND status = 'pending'
+          AND attempt_count < 3
+          AND NOT EXISTS (
+            SELECT 1 FROM opt_outs WHERE opt_outs.phone = campaign_recipients.phone
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM contacts
+             WHERE contacts.phone = campaign_recipients.phone
+               AND contacts.consent_status = 'opt_out'
+          )
         ORDER BY id ASC
         LIMIT 1
       `).get(campaignId);
@@ -120,7 +130,7 @@ async function runCampaign(campaignId, control) {
       }
 
       const delay = randomInt(campaign.delay_min, campaign.delay_max);
-      db.prepare("UPDATE campaign_recipients SET status = 'processing' WHERE id = ?").run(next.id);
+      db.prepare("UPDATE campaign_recipients SET status = 'processing', attempt_count = attempt_count + 1 WHERE id = ? AND status = 'pending'").run(next.id);
       syncCampaignCounters(campaignId, "running");
       log(campaignId, "info", `Aguardando ${delay}s antes de enviar para ${next.phone}.`);
       await sleep(delay * 1000);
@@ -134,7 +144,8 @@ async function runCampaign(campaignId, control) {
         phone: next.phone,
         message: rendered,
         attachments,
-        safeMode: Boolean(campaign.safe_mode)
+        safeMode: Boolean(campaign.safe_mode),
+        idempotencyKey: next.delivery_key
       });
 
       if (result.ok) {
@@ -205,6 +216,34 @@ export function startCampaign(campaignId) {
   return syncCampaignCounters(id, "running");
 }
 
+export function recoverInterruptedCampaigns() {
+  const recover = db.transaction(() => {
+    const recipients = db.prepare(`
+      UPDATE campaign_recipients
+         SET status = 'pending', last_error = 'Recuperado apos interrupcao'
+       WHERE status = 'processing' AND attempt_count < 3
+    `).run();
+    const campaigns = db.prepare(`
+      UPDATE campaigns
+         SET status = 'paused', updated_at = CURRENT_TIMESTAMP
+       WHERE status = 'running'
+    `).run();
+    return { recipients: recipients.changes, campaigns: campaigns.changes };
+  });
+  return recover();
+}
+
+export function isRecipientOptedOut(phone) {
+  return Boolean(
+    db.prepare(`
+      SELECT 1 FROM opt_outs WHERE phone = ?
+      UNION
+      SELECT 1 FROM contacts WHERE phone = ? AND consent_status = 'opt_out'
+      LIMIT 1
+    `).get(phone, phone)
+  );
+}
+
 export function pauseCampaign(campaignId) {
   const id = Number(campaignId);
   const control = runningJobs.get(id);
@@ -220,6 +259,11 @@ export function resumeCampaign(campaignId) {
   if (control) {
     control.paused = false;
   } else {
+    db.prepare(`
+      UPDATE campaign_recipients
+         SET status = 'pending', last_error = NULL
+       WHERE campaign_id = ? AND status IN ('failed', 'processing') AND attempt_count < 3
+    `).run(id);
     return startCampaign(id);
   }
   db.prepare("UPDATE campaigns SET status = 'running', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(id);

@@ -1,5 +1,8 @@
 # DISPARO WINC
 
+> [!IMPORTANT]
+> **SIMULATION ONLY:** this repository does not send real WhatsApp messages. The QR connection, provider responses and delivery results are simulated. Configuring adapter credentials only marks an adapter as ready; a reviewed provider implementation is still required before any real delivery.
+
 Dark neon SaaS platform for WhatsApp campaign operations, contact validation, dynamic personalization, queued sending, real-time logs, and analytics dashboards.
 
 > The anti-blocking layer is implemented as a safe reputation and compliance mode: randomized delays, quiet windows, deduplication, opt-in controls, and pause/cancel actions. The project ships with pluggable adapters and simulated sending, ready to connect to WPP Connect or the Official API with real credentials.
@@ -47,6 +50,9 @@ Stable public demo: https://yungwictor.github.io/DISPARO-WINC/
 - Real-time logs
 - Sent, failed, and waiting counters
 - Pause, resume, and cancel campaign controls
+- SQLite-backed queue that survives restarts and pauses interrupted campaigns for explicit resumption
+- Persistent delivery keys and unique campaign recipients to prevent duplicate processing
+- Permanent opt-out registry enforced before queue processing
 - Campaign history and statistics dashboard
 - Session warm-up workflow
 - Toasts and subtle notification sound
@@ -179,7 +185,32 @@ The file `backend/src/services/whatsappService.js` centralizes message delivery.
 
 - For WPP Connect, provide `WPP_CONNECT_URL` and `WPP_CONNECT_TOKEN`.
 - For the Official API, provide `WHATSAPP_OFFICIAL_TOKEN`, `WHATSAPP_OFFICIAL_PHONE_ID`, and `WHATSAPP_OFFICIAL_BUSINESS_ID`.
-- Replace the simulated `sendMessage` function with the real adapter while keeping the return format `{ ok, messageId }` or `{ ok: false, error }`.
+- The included `sendMessage` remains simulated even when these variables exist. Implement and review a real provider adapter before production use, preserving the return format and forwarding the persistent `idempotencyKey`.
+
+## Queue reliability demonstration
+
+The automated tests use a temporary SQLite database and prove that:
+
+- a recipient left in `processing` after an interruption returns to `pending`;
+- a campaign left in `running` restarts as `paused`, requiring operator action;
+- recipients already marked `sent` are never placed back in the queue;
+- duplicate phone numbers and delivery keys are rejected by database constraints;
+- permanent and contact-level opt-outs are recognized.
+
+Run the demonstration with:
+
+```bash
+npm test
+```
+
+To register an opt-out through the authenticated API:
+
+```http
+POST /api/contacts/5511999999999/opt-out
+Content-Type: application/json
+
+{ "reason": "Contact request" }
+```
 
 ## Operational Notice
 

@@ -14,6 +14,7 @@ import { statsRouter } from "./routes/stats.js";
 import { uploadsRouter } from "./routes/uploads.js";
 import { whatsappRouter } from "./routes/whatsapp.js";
 import { attachSocket } from "./services/socketService.js";
+import { recoverInterruptedCampaigns } from "./services/queueService.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -25,6 +26,10 @@ const io = new Server(server, {
 });
 
 attachSocket(io);
+const recovery = recoverInterruptedCampaigns();
+if (recovery.recipients || recovery.campaigns) {
+  console.warn("Fila persistida recuperada; campanhas interrompidas foram pausadas.", recovery);
+}
 applySecurity(app);
 
 if (env.nodeEnv !== "test") {

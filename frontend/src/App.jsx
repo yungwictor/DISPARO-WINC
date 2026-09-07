@@ -208,6 +208,9 @@ function LoginScreen({ onLogin, busy }) {
           transition={{ duration: 0.7 }}
           className="max-w-4xl"
         >
+          <div className="mb-5 rounded-xl border border-amber/40 bg-amber/10 p-4 text-sm font-semibold text-amber">
+            Demonstracao segura: conexao, fila e envios desta versao sao simulados. Nenhuma mensagem real e enviada.
+          </div>
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-neon/20 bg-neon/8 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-neon">
             <CircleDot size={14} />
             Sistema SaaS de campanhas em tempo real

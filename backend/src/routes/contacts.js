@@ -55,3 +55,22 @@ contactsRouter.post("/import", (req, res) => {
   save(valid);
   res.status(201).json({ imported: valid.length, invalid, duplicates });
 });
+
+contactsRouter.post("/:phone/opt-out", (req, res) => {
+  const phone = normalizePhone(req.params.phone);
+  if (!phone) return res.status(422).json({ message: "Numero invalido" });
+  const transaction = db.transaction(() => {
+    db.prepare(`
+      INSERT INTO opt_outs (phone, reason) VALUES (?, ?)
+      ON CONFLICT(phone) DO UPDATE SET reason = excluded.reason
+    `).run(phone, String(req.body?.reason || "Solicitacao do contato"));
+    db.prepare("UPDATE contacts SET consent_status = 'opt_out' WHERE phone = ?").run(phone);
+    db.prepare(`
+      UPDATE campaign_recipients
+         SET status = 'opted_out', last_error = 'Contato opt-out'
+       WHERE phone = ? AND status IN ('pending', 'processing', 'failed')
+    `).run(phone);
+  });
+  transaction();
+  res.json({ phone, consentStatus: "opt_out" });
+});
